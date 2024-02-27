@@ -69,21 +69,22 @@ impl Measurements {
     fn record(&mut self, reading: i64) {
         self.min = min(self.min, reading);
         self.max = max(self.max, reading);
-        self.sum = self.sum.wrapping_add(reading);
-        self.n = self.n.wrapping_add(1);
+        self.sum += reading;
+        self.n += 1;
     }
 
     fn merge(&mut self, other: Measurements) {
         self.min = min(self.min, other.min);
         self.max = max(self.max, other.max);
-        self.sum = self.sum.wrapping_add(other.sum);
-        self.n = self.n.wrapping_add(other.n);
+        self.sum += other.sum;
+        self.n += other.n;
     }
 
     fn avg(&self) -> f64 {
         self.sum as f64 / self.n as f64
     }
 }
+
 impl Serialize for Measurements {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
@@ -192,13 +193,14 @@ fn parse_line(line: &[u8]) -> (&[u8], i64) {
 #[inline(always)]
 fn parse_reading(reading: &[u8]) -> i64 {
     let is_neg = reading[0] == b'-';
-    let len = reading.len();
-    let (d1, d2, d3) = match (is_neg, len) {
+    let (d1, d2, d3) = match (is_neg, reading.len()) {
         (false, 3) => (0, reading[0] - b'0', reading[2] - b'0'),
         (false, 4) => (reading[0] - b'0', reading[1] - b'0', reading[3] - b'0'),
         (true, 4) => (0, reading[1] - b'0', reading[3] - b'0'),
         (true, 5) => (reading[1] - b'0', reading[2] - b'0', reading[4] - b'0'),
-        _ => unreachable!(),
+        _ => panic!("Unexpected input, {}", unsafe {
+            std::str::from_utf8_unchecked(reading)
+        }),
     };
     let reading = (d1 as i64 * 100) + (d2 as i64 * 10) + (d3 as i64);
     if is_neg {
