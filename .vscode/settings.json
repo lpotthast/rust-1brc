@@ -4,7 +4,9 @@
         "hasher",
         "memmap",
         "Mmap",
+        "recv",
         "simd",
+        "tokio",
         "unindexed"
     ]
 }
