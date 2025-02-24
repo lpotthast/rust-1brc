@@ -2,7 +2,7 @@
 
 Generate the measurements.txt file with
 
-    python3 ./create_measurements.ph 1_000_000_000
+    python3 ./create_measurements.py 1_000_000_000
 
 Run the program with
 
